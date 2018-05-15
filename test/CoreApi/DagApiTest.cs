@@ -2,18 +2,13 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace Ipfs.Api
 {
     [TestClass]
     public class DagApiTest
     {
-        class Name
-        {
-            public string First { get; set; }
-            public string Last { get; set; }
-        }
-
         [TestMethod]
         public async Task PutAndGet_JSON()
         {
@@ -27,7 +22,7 @@ namespace Ipfs.Api
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected["a"], actual["a"]);
 
-            var value = (string) await ipfs.Dag.GetAsync(id.Encode() + "/a");
+            var value = (string)await ipfs.Dag.GetAsync(id.Encode() + "/a");
             Assert.AreEqual(expected["a"], value);
         }
 
@@ -46,6 +41,12 @@ namespace Ipfs.Api
 
             var value = (string)await ipfs.Dag.GetAsync(id.Encode() + "/Last");
             Assert.AreEqual(expected.Last, value);
+        }
+
+        private class Name
+        {
+            public string First { get; set; }
+            public string Last { get; set; }
         }
     }
 }
