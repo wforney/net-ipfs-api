@@ -9,7 +9,7 @@ namespace Ipfs.Api
     [TestClass]
     public class BlockTest
     {
-        byte[] someBytes = new byte[] { 1, 2, 3 };
+        private byte[] someBytes = new byte[] { 1, 2, 3 };
 
         [TestMethod]
         public void DataBytes()
@@ -18,7 +18,7 @@ namespace Ipfs.Api
             {
                 DataBytes = someBytes
             };
-            CollectionAssert.AreEqual(someBytes, block.DataBytes);
+            CollectionAssert.AreEqual(this.someBytes, block.DataBytes);
         }
 
         [TestMethod]

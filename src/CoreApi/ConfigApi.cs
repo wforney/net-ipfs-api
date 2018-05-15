@@ -11,9 +11,9 @@ using Ipfs.CoreApi;
 namespace Ipfs.Api
 {
 
-    class ConfigApi : IConfigApi
+    internal class ConfigApi : IConfigApi
     {
-        IpfsClient ipfs;
+        private IpfsClient ipfs;
 
         internal ConfigApi(IpfsClient ipfs)
         {
@@ -22,26 +22,26 @@ namespace Ipfs.Api
 
         public async Task<JObject> GetAsync(CancellationToken cancel = default(CancellationToken))
         {
-            var json = await ipfs.DoCommandAsync("config/show", cancel);
+            var json = await this.ipfs.DoCommandAsync("config/show", cancel);
             return JObject.Parse(json);
         }
 
         public async Task<JToken> GetAsync(string key, CancellationToken cancel = default(CancellationToken))
         {
-            var json = await ipfs.DoCommandAsync("config", cancel, key);
+            var json = await this.ipfs.DoCommandAsync("config", cancel, key);
             var r = JObject.Parse(json);
             return r["Value"];
         }
 
         public async Task SetAsync(string key, string value, CancellationToken cancel = default(CancellationToken))
         {
-            var _ = await ipfs.DoCommandAsync("config", cancel, key, "arg=" + value);
+            var _ = await this.ipfs.DoCommandAsync("config", cancel, key, "arg=" + value);
             return;
         }
 
         public async Task SetAsync(string key, JToken value, CancellationToken cancel = default(CancellationToken))
         {
-            var _ = await ipfs.DoCommandAsync("config", cancel,
+            var _ = await this.ipfs.DoCommandAsync("config", cancel,
                 key,
                 "arg=" + value.ToString(Formatting.None),
                 "json=true");

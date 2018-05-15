@@ -1,14 +1,11 @@
-﻿using Ipfs.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-
 namespace Ipfs.Api
 {
-    
+    using System.Linq;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
     public partial class IpfsClientTest
     {
-        MultiAddress newTrustedPeer = new MultiAddress("/ip4/25.196.147.100/tcp/4001/ipfs/QmaMqSwWShsPg2RbredZtoneFjXhim7AQkqbLxib45Lx4S");
+        private MultiAddress newTrustedPeer = new MultiAddress("/ip4/25.196.147.100/tcp/4001/ipfs/QmaMqSwWShsPg2RbredZtoneFjXhim7AQkqbLxib45Lx4S");
 
         [TestMethod]
         public void Trusted_Peers_List()
@@ -22,18 +19,16 @@ namespace Ipfs.Api
         public void Trusted_Peers_Add_Remove()
         {
             var ipfs = TestFixture.Ipfs;
-            Assert.IsFalse(ipfs.TrustedPeers.Contains(newTrustedPeer));
+            Assert.IsFalse(ipfs.TrustedPeers.Contains(this.newTrustedPeer));
 
-            ipfs.TrustedPeers.Add(newTrustedPeer);
-            Assert.IsTrue(ipfs.TrustedPeers.Contains(newTrustedPeer));
+            ipfs.TrustedPeers.AddAsync(this.newTrustedPeer).Wait();
+            Assert.IsTrue(ipfs.TrustedPeers.Contains(this.newTrustedPeer));
 
-            ipfs.TrustedPeers.Remove(newTrustedPeer);
-            Assert.IsFalse(ipfs.TrustedPeers.Contains(newTrustedPeer));
+            ipfs.TrustedPeers.RemoveAsync(this.newTrustedPeer).Wait();
+            Assert.IsFalse(ipfs.TrustedPeers.Contains(this.newTrustedPeer));
         }
 
-        // js-ipfs does NOT check IPFS addresses.
-        // And this bad addr eventually breaks the server.
-        // https://github.com/ipfs/js-ipfs/issues/1066
+        // js-ipfs does NOT check IPFS addresses. And this bad addr eventually breaks the server. https://github.com/ipfs/js-ipfs/issues/1066
 #if false
         [TestMethod]
         public void Trusted_Peers_Add_Missing_Peer_ID()
@@ -50,11 +45,13 @@ namespace Ipfs.Api
             var ipfs = TestFixture.Ipfs;
             var original = ipfs.TrustedPeers.ToArray();
 
-            ipfs.TrustedPeers.Clear();
+            ipfs.TrustedPeers.ClearAsync().Wait();
             Assert.AreEqual(0, ipfs.TrustedPeers.Count);
 
             foreach (var a in original)
-                ipfs.TrustedPeers.Add(a);
+            {
+                ipfs.TrustedPeers.AddAsync(a).Wait();
+            }
         }
 
         [TestMethod]
@@ -63,14 +60,16 @@ namespace Ipfs.Api
             var ipfs = TestFixture.Ipfs;
             var original = ipfs.TrustedPeers.ToArray();
 
-            ipfs.TrustedPeers.Clear();
+            ipfs.TrustedPeers.ClearAsync().Wait();
             Assert.AreEqual(0, ipfs.TrustedPeers.Count);
-            ipfs.TrustedPeers.AddDefaultNodes();
+            ipfs.TrustedPeers.AddDefaultNodesAsync().Wait();
             Assert.AreNotEqual(0, ipfs.TrustedPeers.Count);
 
-            ipfs.TrustedPeers.Clear();
+            ipfs.TrustedPeers.ClearAsync().Wait();
             foreach (var a in original)
-                ipfs.TrustedPeers.Add(a);
+            {
+                ipfs.TrustedPeers.AddAsync(a).Wait();
+            }
         }
     }
 }

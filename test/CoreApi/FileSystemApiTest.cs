@@ -225,8 +225,8 @@ namespace Ipfs.Api
                 Assert.IsFalse(yfiles[0].IsDirectory);
 
                 var y = new FileSystemNode { Id = yfiles[0].Id };
-                Assert.AreEqual("y", Encoding.UTF8.GetString(y.DataBytes));
-                Assert.AreEqual("y", ipfs.FileSystem.ReadAllTextAsync(dir.Id + "/x/y/y.txt").Result);
+                Assert.AreEqual(nameof(y), Encoding.UTF8.GetString(y.DataBytes));
+                Assert.AreEqual(nameof(y), ipfs.FileSystem.ReadAllTextAsync(dir.Id + "/x/y/y.txt").Result);
             }
             finally
             {
@@ -234,7 +234,7 @@ namespace Ipfs.Api
             }
         }
 
-        void DeleteTemp(string temp)
+        private void DeleteTemp(string temp)
         {
             while (true)
             {
@@ -251,7 +251,7 @@ namespace Ipfs.Api
             }
         }
 
-        string MakeTemp()
+        private string MakeTemp()
         {
             var temp = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             var x = Path.Combine(temp, "x");
@@ -262,7 +262,7 @@ namespace Ipfs.Api
 
             File.WriteAllText(Path.Combine(temp, "alpha.txt"), "alpha");
             File.WriteAllText(Path.Combine(temp, "beta.txt"), "beta");
-            File.WriteAllText(Path.Combine(x, "x.txt"), "x");
+            File.WriteAllText(Path.Combine(x, "x.txt"), nameof(x));
             File.WriteAllText(Path.Combine(xy, "y.txt"), "y");
             return temp;
         }

@@ -17,18 +17,18 @@ namespace Ipfs.Api
         [TestMethod]
         public void Api_Exists()
         {
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             Assert.IsNotNull(ipfs.Key);
         }
 
         [TestMethod]
         public async Task Self_Key_Exists()
         {
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             var keys = await ipfs.Key.ListAsync();
             var self = keys.Single(k => k.Name == "self");
             var me = await ipfs.IdAsync();
-            Assert.AreEqual("self", self.Name);
+            Assert.AreEqual(nameof(self), self.Name);
             Assert.AreEqual(me.Id, self.Id);
         }
 
@@ -36,7 +36,7 @@ namespace Ipfs.Api
         public async Task Create_RSA_Key()
         {
             var name = "net-api-test-create";
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             var key = await ipfs.Key.CreateAsync(name, "rsa", 2048);
             try
             {
@@ -59,7 +59,7 @@ namespace Ipfs.Api
         public async Task Remove_Key()
         {
             var name = "net-api-test-remove";
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             var key = await ipfs.Key.CreateAsync(name, "rsa", 2048);
             var keys = await ipfs.Key.ListAsync();
             var clone = keys.Single(k => k.Name == name);

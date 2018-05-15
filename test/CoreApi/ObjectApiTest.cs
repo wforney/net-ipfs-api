@@ -13,22 +13,22 @@ namespace Ipfs.Api
     [TestClass]
     public class ObjectApiTest
     {
-        IpfsClient ipfs = TestFixture.Ipfs;
+        private IpfsClient ipfs = TestFixture.Ipfs;
 
         [TestMethod]
         public async Task New_Template_Null()
         {
-            var node = await ipfs.Object.NewAsync();
+            var node = await this.ipfs.Object.NewAsync();
             Assert.AreEqual("QmdfTbBqBPQ7VNxZEYEj14VmRuZBkqFbiwReogJgS1zR1n", (string)node.Id);
         }
 
         [TestMethod]
         public async Task New_Template_UnixfsDir()
         {
-            var node = await ipfs.Object.NewAsync("unixfs-dir");
+            var node = await this.ipfs.Object.NewAsync("unixfs-dir");
             Assert.AreEqual("QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn", (string)node.Id);
 
-            node = await ipfs.Object.NewDirectoryAsync();
+            node = await this.ipfs.Object.NewDirectoryAsync();
             Assert.AreEqual("QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn", (string)node.Id);
 
         }
@@ -40,8 +40,8 @@ namespace Ipfs.Api
             var bdata = Encoding.UTF8.GetBytes("beta");
             var alpha = new DagNode(adata);
             var beta = new DagNode(bdata, new[] { alpha.ToLink() });
-            var x = await ipfs.Object.PutAsync(beta);
-            var node = await ipfs.Object.GetAsync(x.Id);
+            var x = await this.ipfs.Object.PutAsync(beta);
+            var node = await this.ipfs.Object.GetAsync(x.Id);
             CollectionAssert.AreEqual(beta.DataBytes, node.DataBytes);
             Assert.AreEqual(beta.Links.Count(), node.Links.Count());
             Assert.AreEqual(beta.Links.First().Id, node.Links.First().Id);
@@ -55,8 +55,8 @@ namespace Ipfs.Api
             var adata = Encoding.UTF8.GetBytes("alpha");
             var bdata = Encoding.UTF8.GetBytes("beta");
             var alpha = new DagNode(adata);
-            var beta = await ipfs.Object.PutAsync(bdata, new[] { alpha.ToLink() });
-            var node = await ipfs.Object.GetAsync(beta.Id);
+            var beta = await this.ipfs.Object.PutAsync(bdata, new[] { alpha.ToLink() });
+            var node = await this.ipfs.Object.GetAsync(beta.Id);
             CollectionAssert.AreEqual(beta.DataBytes, node.DataBytes);
             Assert.AreEqual(beta.Links.Count(), node.Links.Count());
             Assert.AreEqual(beta.Links.First().Id, node.Links.First().Id);
@@ -68,8 +68,8 @@ namespace Ipfs.Api
         public async Task Data()
         {
             var adata = Encoding.UTF8.GetBytes("alpha");
-            var node = await ipfs.Object.PutAsync(adata);
-            using (var stream = await ipfs.Object.DataAsync(node.Id))
+            var node = await this.ipfs.Object.PutAsync(adata);
+            using (var stream = await this.ipfs.Object.DataAsync(node.Id))
             {
                 var bdata = new byte[adata.Length];
                 stream.Read(bdata, 0, bdata.Length);
@@ -83,8 +83,8 @@ namespace Ipfs.Api
             var adata = Encoding.UTF8.GetBytes("alpha");
             var bdata = Encoding.UTF8.GetBytes("beta");
             var alpha = new DagNode(adata);
-            var beta = await ipfs.Object.PutAsync(bdata, new[] { alpha.ToLink() });
-            var links = await ipfs.Object.LinksAsync(beta.Id);
+            var beta = await this.ipfs.Object.PutAsync(bdata, new[] { alpha.ToLink() });
+            var links = await this.ipfs.Object.LinksAsync(beta.Id);
             Assert.AreEqual(beta.Links.Count(),links.Count());
             Assert.AreEqual(beta.Links.First().Id, links.First().Id);
             Assert.AreEqual(beta.Links.First().Name, links.First().Name);
@@ -119,7 +119,7 @@ namespace Ipfs.Api
             var cs = new CancellationTokenSource(500);
             try
             {
-                var _ = await ipfs.Object.GetAsync(id, cs.Token);
+                var _ = await this.ipfs.Object.GetAsync(id, cs.Token);
                 Assert.Fail("Did not throw TaskCanceledException");
             }
             catch (TaskCanceledException)

@@ -1,54 +1,50 @@
-﻿using Common.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Ipfs.CoreApi;
-
 namespace Ipfs.Api
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Common.Logging;
+    using Ipfs.CoreApi;
+    using Newtonsoft.Json.Linq;
 
-    class DhtApi : IDhtApi
+    internal class DhtApi : IDhtApi
     {
-        static ILog log = LogManager.GetLogger<DhtApi>();
+        private static readonly ILog Log = LogManager.GetLogger<DhtApi>();
 
-        IpfsClient ipfs;
+        private IpfsClient ipfs;
 
         internal DhtApi(IpfsClient ipfs)
         {
             this.ipfs = ipfs;
         }
 
-        public Task<Peer> FindPeerAsync(MultiHash id, CancellationToken cancel = default(CancellationToken))
-        {
-            return ipfs.IdAsync(id, cancel);
-        }
+        public Task<Peer> FindPeerAsync(MultiHash id, CancellationToken cancel = default(CancellationToken)) => this.ipfs.IdAsync(id, cancel);
 
         public async Task<IEnumerable<Peer>> FindProvidersAsync(Cid id, CancellationToken cancel = default(CancellationToken))
         {
-            var stream = await ipfs.PostDownloadAsync("dht/findprovs", cancel, id);
+            var stream = await this.ipfs.PostDownloadAsync("dht/findprovs", cancel, id);
             return ProviderFromStream(stream);
         }
 
-        IEnumerable<Peer> ProviderFromStream(Stream stream)
-        { 
+        private static IEnumerable<Peer> ProviderFromStream(Stream stream)
+        {
             using (var sr = new StreamReader(stream))
             {
                 while (!sr.EndOfStream)
                 {
                     var json = sr.ReadLine();
-                    if (log.IsDebugEnabled)
-                        log.DebugFormat("Provider {0}", json);
+                    if (Log.IsDebugEnabled)
+                    {
+                        Log.DebugFormat("Provider {0}", json);
+                    }
 
                     var r = JObject.Parse(json);
                     var id = (string)r["ID"];
-                    if (id != String.Empty)
+                    if (id != string.Empty)
+                    {
                         yield return new Peer { Id = new MultiHash(id) };
+                    }
                     else
                     {
                         var responses = (JArray)r["Responses"];
@@ -57,14 +53,15 @@ namespace Ipfs.Api
                             foreach (var response in responses)
                             {
                                 var rid = (string)response["ID"];
-                                if (rid != String.Empty)
+                                if (rid != string.Empty)
+                                {
                                     yield return new Peer { Id = new MultiHash(rid) };
+                                }
                             }
                         }
                     }
                 }
             }
-         }
+        }
     }
-
 }

@@ -22,7 +22,10 @@ namespace Ipfs.Api
                 if (match != null)
                 {
                     if (expectedMessage != null)
+                    {
                         Assert.AreEqual(expectedMessage, match.Message, "Wrong exception message.");
+                    }
+
                     return match;
                 }
 
@@ -31,7 +34,10 @@ namespace Ipfs.Api
             catch (T e)
             {
                 if (expectedMessage != null)
+                {
                     Assert.AreEqual(expectedMessage, e.Message);
+                }
+
                 return e;
             }
             Assert.Fail("Exception of type {0} should be thrown.", typeof(T));

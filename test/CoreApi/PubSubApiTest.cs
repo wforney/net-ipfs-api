@@ -17,7 +17,7 @@ namespace Ipfs.Api
         [TestMethod]
         public void Api_Exists()
         {
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             Assert.IsNotNull(ipfs.PubSub);
         }
 
@@ -67,12 +67,12 @@ namespace Ipfs.Api
             }
         }
 
-        volatile int messageCount = 0;
+        private volatile int messageCount = 0;
 
         [TestMethod]
         public async Task Subscribe()
         {
-            messageCount = 0;
+            this.messageCount = 0;
             var ipfs = TestFixture.Ipfs;
             var topic = "net-ipfs-api-test-" + Guid.NewGuid().ToString();
             var cs = new CancellationTokenSource();
@@ -80,12 +80,12 @@ namespace Ipfs.Api
             {
                 await ipfs.PubSub.Subscribe(topic, msg =>
                 {
-                    Interlocked.Increment(ref messageCount);
+                    Interlocked.Increment(ref this.messageCount);
                 }, cs.Token);
                 await ipfs.PubSub.Publish(topic, "hello world!");
 
                 await Task.Delay(1000);
-                Assert.AreEqual(1, messageCount);
+                Assert.AreEqual(1, this.messageCount);
             }
             finally
             {
@@ -96,7 +96,7 @@ namespace Ipfs.Api
         [TestMethod]
         public async Task Subscribe_Mutiple_Messages()
         {
-            messageCount = 0;
+            this.messageCount = 0;
             var messages = "hello world this is pubsub".Split();
             var ipfs = TestFixture.Ipfs;
             var topic = "net-ipfs-api-test-" + Guid.NewGuid().ToString();
@@ -105,7 +105,7 @@ namespace Ipfs.Api
             {
                 await ipfs.PubSub.Subscribe(topic, msg =>
                 {
-                    Interlocked.Increment(ref messageCount);
+                    Interlocked.Increment(ref this.messageCount);
                 }, cs.Token);
                 foreach (var msg in messages)
                 {
@@ -113,7 +113,7 @@ namespace Ipfs.Api
                 }
 
                 await Task.Delay(1000);
-                Assert.AreEqual(messages.Length, messageCount);
+                Assert.AreEqual(messages.Length, this.messageCount);
             }
             finally
             {
@@ -125,14 +125,14 @@ namespace Ipfs.Api
         [Ignore("go-ipfs doesn't allow multiple subscribe to the same topic")]
         public async Task Multiple_Subscribe_Mutiple_Messages()
         {
-            messageCount = 0;
+            this.messageCount = 0;
             var messages = "hello world this is pubsub".Split();
             var ipfs = TestFixture.Ipfs;
             var topic = "net-ipfs-api-test-" + Guid.NewGuid().ToString();
             var cs = new CancellationTokenSource();
             Action<IPublishedMessage> processMessage = (msg) => 
             {
-                Interlocked.Increment(ref messageCount);
+                Interlocked.Increment(ref this.messageCount);
             };
             try
             {
@@ -144,7 +144,7 @@ namespace Ipfs.Api
                 }
 
                 await Task.Delay(1000);
-                Assert.AreEqual(messages.Length * 2, messageCount);
+                Assert.AreEqual(messages.Length * 2, this.messageCount);
             }
             finally
             {
@@ -152,27 +152,27 @@ namespace Ipfs.Api
             }
         }
 
-        volatile int messageCount1 = 0;
+        private volatile int messageCount1 = 0;
 
         [TestMethod]
         public async Task Unsubscribe()
         {
-            messageCount1 = 0;
+            this.messageCount1 = 0;
             var ipfs = TestFixture.Ipfs;
             var topic = "net-ipfs-api-test-" + Guid.NewGuid().ToString();
             var cs = new CancellationTokenSource();
             await ipfs.PubSub.Subscribe(topic, msg =>
             {
-                Interlocked.Increment(ref messageCount1);
+                Interlocked.Increment(ref this.messageCount1);
             }, cs.Token);
             await ipfs.PubSub.Publish(topic, "hello world!");
             await Task.Delay(1000);
-            Assert.AreEqual(1, messageCount1);
+            Assert.AreEqual(1, this.messageCount1);
 
             cs.Cancel();
             await ipfs.PubSub.Publish(topic, "hello world!!!");
             await Task.Delay(1000);
-            Assert.AreEqual(1, messageCount1);
+            Assert.AreEqual(1, this.messageCount1);
         }
     }
 }

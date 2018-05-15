@@ -8,7 +8,7 @@ namespace Ipfs.Api
     [TestClass]
     public class GenericApiTest
     {
-        const string marsId = "QmSoLMeWqB7YGVLJN3pNLQpmmEk35v6wYtsMGLzSr5QBU3";
+        private const string marsId = "QmSoLMeWqB7YGVLJN3pNLQpmmEk35v6wYtsMGLzSr5QBU3";
 
         [TestMethod]
         public void Local_Node_Info()

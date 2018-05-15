@@ -17,14 +17,14 @@ namespace Ipfs.Api
         [TestMethod]
         public void Api_Exists()
         {
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             Assert.IsNotNull(ipfs.Name);
         }
 
         [TestMethod]
         public async Task Resolve()
         {
-            IpfsClient ipfs = TestFixture.Ipfs;
+            var ipfs = TestFixture.Ipfs;
             var id = await ipfs.Name.ResolveAsync("ipfs.io");
             Assert.IsNotNull(id);
         }

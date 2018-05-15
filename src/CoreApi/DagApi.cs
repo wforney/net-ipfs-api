@@ -1,36 +1,31 @@
-﻿using Common.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Ipfs.CoreApi;
-
 namespace Ipfs.Api
 {
+    using System;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using Ipfs.CoreApi;
+    using Newtonsoft.Json.Linq;
 
-    class DagApi : IDagApi
+    internal class DagApi : IDagApi
     {
-        IpfsClient ipfs;
+        private IpfsClient ipfs;
 
         internal DagApi(IpfsClient ipfs)
         {
             this.ipfs = ipfs;
         }
 
+        public Task<JObject> GetAsync(Cid id, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
 
-        public Task<Cid> PutAsync(ILinkedNode data, string contentType, string multiHash = MultiHash.DefaultAlgorithmName, CancellationToken cancel = default(CancellationToken))
-        {
-            throw new NotImplementedException();
-        }
+        public Task<JToken> GetAsync(string path, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
 
-        Task<ILinkedNode> IDagApi.GetAsync(string path, CancellationToken cancel)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<T> GetAsync<T>(Cid id, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
+
+        public Task<Cid> PutAsync(JObject data, string contentType = "cbor", string multiHash = "sha2-256", bool pin = true, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
+
+        public Task<Cid> PutAsync(Stream data, string contentType = "cbor", string multiHash = "sha2-256", bool pin = true, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
+
+        public Task<Cid> PutAsync(object data, string contentType = "cbor", string multiHash = "sha2-256", bool pin = true, CancellationToken cancel = default(CancellationToken)) => throw new NotImplementedException();
     }
 }

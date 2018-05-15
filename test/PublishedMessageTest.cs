@@ -10,7 +10,7 @@ namespace Ipfs.Api
     [TestClass]
     public partial class PublishedMessageTest
     {
-        const string json = @"{
+        private const string json = @"{
  ""from"":""EiDzOYdzT4BE42JXwxVM8Q19w6tx30Bp2N3T7tOH/a2nCw=="",
  ""data"":""aGVsbG8gd29ybGQ="",
  ""seqno"":""FPBVj+oTUug="",

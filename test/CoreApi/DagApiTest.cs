@@ -1,7 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using System;
-using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ipfs.Api
 {
@@ -19,9 +17,7 @@ namespace Ipfs.Api
         public void PutAsync()
         {
             var ipfs = TestFixture.Ipfs;
-            ExceptionAssert.Throws<NotImplementedException>(() => ipfs.Dag.PutAsync(null, null));
+            ExceptionAssert.Throws<NotImplementedException>(() => ipfs.Dag.PutAsync((object)null));
         }
-
     }
 }
-

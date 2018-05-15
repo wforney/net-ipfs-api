@@ -1,26 +1,21 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Ipfs.CoreApi;
-using System.IO;
+// <copyright file="BitswapApi.cs" company="Richard Schneider">© 2015-2018 Richard Schneider</copyright>
 
 namespace Ipfs.Api
 {
+    using Ipfs.CoreApi;
 
-    class BitswapApi : IBitswapApi
+    /// <summary>Class BitswapApi.</summary>
+    /// <seealso cref="Ipfs.CoreApi.IBitswapApi" />
+    internal class BitswapApi : IBitswapApi
     {
-        IpfsClient ipfs;
+        /// <summary>The ipfs</summary>
+        private IpfsClient ipfs;
 
+        /// <summary>Initializes a new instance of the <see cref="BitswapApi" /> class.</summary>
+        /// <param name="ipfs">The ipfs.</param>
         internal BitswapApi(IpfsClient ipfs)
         {
             this.ipfs = ipfs;
         }
     }
-
 }

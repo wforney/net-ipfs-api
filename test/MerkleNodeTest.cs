@@ -10,7 +10,7 @@ namespace Ipfs.Api
     [TestClass]
     public partial class MerkleNodeTest
     {
-        const string IpfsInfo = "QmVtU7ths96fMgZ8YSZAbKghyieq7AjxNdcqyVzxTt3qVe";
+        private const string IpfsInfo = "QmVtU7ths96fMgZ8YSZAbKghyieq7AjxNdcqyVzxTt3qVe";
 
         [TestMethod]
         public void HashWithNamespace()
@@ -112,7 +112,7 @@ namespace Ipfs.Api
         public void DataBytes()
         {
             var node = new MerkleNode(IpfsInfo);
-            byte[] data = node.DataBytes;
+            var data = node.DataBytes;
             Assert.AreEqual(node.BlockSize, data.Length);
         }
 
@@ -120,7 +120,7 @@ namespace Ipfs.Api
         public void DataStream()
         {
             var node = new MerkleNode(IpfsInfo);
-            byte[] data = node.DataBytes;
+            var data = node.DataBytes;
             var streamData = new MemoryStream();
             node.DataStream.CopyTo(streamData);
             CollectionAssert.AreEqual(data, streamData.ToArray());
