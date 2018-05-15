@@ -1,17 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Ipfs.Api
 {
- 
     [TestClass]
     public class SwarmApiTest
     {
-
         [TestMethod]
         public async Task Addresses()
         {
@@ -26,42 +25,12 @@ namespace Ipfs.Api
         }
 
         [TestMethod]
-        public async Task Peers()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var peers = await ipfs.Swarm.PeersAsync();
-            Assert.AreNotEqual(0, peers.Count());
-            foreach (var peer in peers)
-            {
-                Assert.IsNotNull(peer.Id);
-                Assert.IsNotNull(peer.ConnectedAddress);
-            }
-        }
-
-        [TestMethod]
-        public async Task Peers_Info()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var peers = await ipfs.Swarm.PeersAsync();
-            await Task.WhenAll(peers
-                .Where(p => p.Latency != TimeSpan.Zero)
-                .OrderBy(p => p.Latency)
-                .Take(1)
-                .Select(async p =>
-                {
-                    var peer = await ipfs.IdAsync(p.Id);
-                    Assert.AreNotEqual("", peer.PublicKey);
-                }));
-        }
-
-        [TestMethod]
         public async Task Connection()
         {
             var ipfs = TestFixture.Ipfs;
             var peers = await ipfs.Swarm.PeersAsync();
 
-            // Sometimes we cannot connect to a specific peer.  This
-            // tests that a connection can be made to at least one peer.
+            // Sometimes we cannot connect to a specific peer. This tests that a connection can be made to at least one peer.
             foreach (var peer in peers.Take(2))
             {
                 try
@@ -70,9 +39,10 @@ namespace Ipfs.Api
                     await ipfs.Swarm.ConnectAsync(peer.ConnectedAddress);
                     return;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // eat it
+                    Debug.WriteLine($"Ate an exception. Yum! {e.Message}");
                 }
             }
 
@@ -117,6 +87,35 @@ namespace Ipfs.Api
 
             var filter = await ipfs.Swarm.RemoveAddressFilterAsync(somewhere);
             Assert.IsNull(filter);
+        }
+
+        [TestMethod]
+        public async Task Peers()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var peers = await ipfs.Swarm.PeersAsync();
+            Assert.AreNotEqual(0, peers.Count());
+            foreach (var peer in peers)
+            {
+                Assert.IsNotNull(peer.Id);
+                Assert.IsNotNull(peer.ConnectedAddress);
+            }
+        }
+
+        [TestMethod]
+        public async Task Peers_Info()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var peers = await ipfs.Swarm.PeersAsync();
+            await Task.WhenAll(peers
+                .Where(p => p.Latency != TimeSpan.Zero)
+                .OrderBy(p => p.Latency)
+                .Take(1)
+                .Select(async p =>
+                {
+                    var peer = await ipfs.IdAsync(p.Id);
+                    Assert.AreNotEqual("", peer.PublicKey);
+                }));
         }
     }
 }

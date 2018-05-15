@@ -1,20 +1,22 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ipfs.Api
 {
-    /// <summary>
-    ///   Asserting an <see cref="Exception"/>.
-    /// </summary>
+    /// <summary>Asserting an <see cref="Exception" />.</summary>
     public static class ExceptionAssert
     {
-
         public static T Throws<T>(Action action, string expectedMessage = null) where T : Exception
         {
+            if (action == null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
             try
             {
-                action();
+                action?.Invoke();
             }
             catch (AggregateException e)
             {
@@ -42,7 +44,7 @@ namespace Ipfs.Api
             }
             Assert.Fail("Exception of type {0} should be thrown.", typeof(T));
 
-            //  The compiler doesn't know that Assert.Fail will always throw an exception
+            // The compiler doesn't know that Assert.Fail will always throw an exception
             return null;
         }
 
@@ -50,6 +52,5 @@ namespace Ipfs.Api
         {
             return Throws<Exception>(action, expectedMessage);
         }
-
     }
 }

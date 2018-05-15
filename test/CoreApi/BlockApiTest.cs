@@ -1,4 +1,4 @@
-﻿using Ipfs.Api;
+using Ipfs.Api;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -8,13 +8,24 @@ using System.Threading.Tasks;
 
 namespace Ipfs.Api
 {
-
     [TestClass]
     public class BlockApiTest
     {
-        private IpfsClient ipfs = TestFixture.Ipfs;
-        private string id = "QmPv52ekjS75L4JmHpXVeuJ5uX2ecSfSZo88NSyxwA3rAQ";
         private byte[] blob = Encoding.UTF8.GetBytes("blorb");
+        private string id = "QmPv52ekjS75L4JmHpXVeuJ5uX2ecSfSZo88NSyxwA3rAQ";
+        private IpfsClient ipfs = TestFixture.Ipfs;
+
+        [TestMethod]
+        public void Get()
+        {
+            var _ = this.ipfs.Block.PutAsync(this.blob).Result;
+            var block = this.ipfs.Block.GetAsync(this.id).Result;
+            Assert.AreEqual(this.id, (string)block.Id);
+            CollectionAssert.AreEqual(this.blob, block.DataBytes);
+            var blob1 = new byte[this.blob.Length];
+            block.DataStream.Read(blob1, 0, blob1.Length);
+            CollectionAssert.AreEqual(this.blob, blob1);
+        }
 
         [TestMethod]
         public void Put_Bytes()
@@ -66,34 +77,43 @@ namespace Ipfs.Api
         [TestMethod]
         public void Put_Stream()
         {
-            var cid = this.ipfs.Block.PutAsync(new MemoryStream(this.blob)).Result;
-            Assert.AreEqual(this.id, (string)cid);
+            using (var memoryStream = new MemoryStream(this.blob))
+            {
+                var cid = this.ipfs.Block.PutAsync(memoryStream).Result;
+                Assert.AreEqual(this.id, (string)cid);
 
-            var data = this.ipfs.Block.GetAsync(cid).Result;
-            Assert.AreEqual(this.blob.Length, data.Size);
-            CollectionAssert.AreEqual(this.blob, data.DataBytes);
+                var data = this.ipfs.Block.GetAsync(cid).Result;
+                Assert.AreEqual(this.blob.Length, data.Size);
+                CollectionAssert.AreEqual(this.blob, data.DataBytes);
+            }
         }
 
         [TestMethod]
         public void Put_Stream_ContentType()
         {
-            var cid = this.ipfs.Block.PutAsync(new MemoryStream(this.blob), contentType: "raw").Result;
-            Assert.AreEqual("zb2rhYDhWhxyHN6HFAKGvHnLogYfnk9KvzBUZvCg7sYhS22N8", (string)cid);
+            using (var memoryStream = new MemoryStream(this.blob))
+            {
+                var cid = this.ipfs.Block.PutAsync(memoryStream, contentType: "raw").Result;
+                Assert.AreEqual("zb2rhYDhWhxyHN6HFAKGvHnLogYfnk9KvzBUZvCg7sYhS22N8", (string)cid);
 
-            var data = this.ipfs.Block.GetAsync(cid).Result;
-            Assert.AreEqual(this.blob.Length, data.Size);
-            CollectionAssert.AreEqual(this.blob, data.DataBytes);
+                var data = this.ipfs.Block.GetAsync(cid).Result;
+                Assert.AreEqual(this.blob.Length, data.Size);
+                CollectionAssert.AreEqual(this.blob, data.DataBytes);
+            }
         }
 
         [TestMethod]
         public void Put_Stream_Hash()
         {
-            var cid = this.ipfs.Block.PutAsync(new MemoryStream(this.blob), "raw", "sha2-512").Result;
-            Assert.AreEqual("zB7NCfbtX9WqFowgroqE19J841VESUhLc1enF7faMSMhTPMR4M3kWq7rS2AfCvdHeZ3RdfoSM45q7svoMQmw2NDD37z9F", (string)cid);
+            using (var memoryStream = new MemoryStream(this.blob))
+            {
+                var cid = this.ipfs.Block.PutAsync(memoryStream, "raw", "sha2-512").Result;
+                Assert.AreEqual("zB7NCfbtX9WqFowgroqE19J841VESUhLc1enF7faMSMhTPMR4M3kWq7rS2AfCvdHeZ3RdfoSM45q7svoMQmw2NDD37z9F", (string)cid);
 
-            var data = this.ipfs.Block.GetAsync(cid).Result;
-            Assert.AreEqual(this.blob.Length, data.Size);
-            CollectionAssert.AreEqual(this.blob, data.DataBytes);
+                var data = this.ipfs.Block.GetAsync(cid).Result;
+                Assert.AreEqual(this.blob.Length, data.Size);
+                CollectionAssert.AreEqual(this.blob, data.DataBytes);
+            }
         }
 
         [TestMethod]
@@ -108,27 +128,6 @@ namespace Ipfs.Api
             var cid2 = this.ipfs.Block.PutAsync(data2, contentType: "raw", pin: false).Result;
             pins = this.ipfs.Pin.ListAsync().Result;
             Assert.IsFalse(pins.Any(pin => pin == cid2));
-        }
-
-        [TestMethod]
-        public void Get()
-        {
-            var _ = this.ipfs.Block.PutAsync(this.blob).Result;
-            var block = this.ipfs.Block.GetAsync(this.id).Result;
-            Assert.AreEqual(this.id, (string)block.Id);
-            CollectionAssert.AreEqual(this.blob, block.DataBytes);
-            var blob1 = new byte[this.blob.Length];
-            block.DataStream.Read(blob1, 0, blob1.Length);
-            CollectionAssert.AreEqual(this.blob, blob1);
-        }
-
-        [TestMethod]
-        public void Stat()
-        {
-            var _ = this.ipfs.Block.PutAsync(this.blob).Result;
-            var info = this.ipfs.Block.StatAsync(this.id).Result;
-            Assert.AreEqual(this.id, (string)info.Id);
-            Assert.AreEqual(5, info.Size);
         }
 
         [TestMethod]
@@ -152,5 +151,13 @@ namespace Ipfs.Api
             Assert.AreEqual(null, cid);
         }
 
+        [TestMethod]
+        public void Stat()
+        {
+            var _ = this.ipfs.Block.PutAsync(this.blob).Result;
+            var info = this.ipfs.Block.StatAsync(this.id).Result;
+            Assert.AreEqual(this.id, (string)info.Id);
+            Assert.AreEqual(5, info.Size);
+        }
     }
 }

@@ -1,14 +1,12 @@
-﻿using Ipfs.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ipfs.Api
 {
-    
     [TestClass]
-    public partial class PublishedMessageTest
+    public class PublishedMessageTest
     {
         private const string json = @"{
  ""from"":""EiDzOYdzT4BE42JXwxVM8Q19w6tx30Bp2N3T7tOH/a2nCw=="",
@@ -37,10 +35,10 @@ namespace Ipfs.Api
         public void Id_NotSupported()
         {
             var msg = new PublishedMessage(json);
-            ExceptionAssert.Throws<NotSupportedException>(() => {
+            ExceptionAssert.Throws<NotSupportedException>(() =>
+            {
                 var _ = msg.Id;
             });
         }
-
     }
 }

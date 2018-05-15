@@ -1,14 +1,12 @@
-﻿using Ipfs.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ipfs.Api
 {
-    
     [TestClass]
-    public partial class MerkleNodeTest
+    public class MerkleNodeTest
     {
         private const string IpfsInfo = "QmVtU7ths96fMgZ8YSZAbKghyieq7AjxNdcqyVzxTt3qVe";
 
@@ -60,7 +58,6 @@ namespace Ipfs.Api
             Assert.AreEqual(link.Id, node.Id);
             Assert.AreEqual(link.Name, node.Name);
             Assert.AreEqual(link.Size, node.BlockSize);
-
         }
 
         [TestMethod]
@@ -71,13 +68,13 @@ namespace Ipfs.Api
             var b = new MerkleNode("QmagNHT6twJRBZcGeviiGzHVTMbNnJZameLyL6T14GUHCS");
             MerkleNode nullNode = null;
 
-            #pragma warning disable 1718
+#pragma warning disable 1718
             Assert.IsTrue(a0 == a0);
             Assert.IsTrue(a0 == a1);
             Assert.IsFalse(a0 == b);
             Assert.IsFalse(a0 == null);
 
-            #pragma warning disable 1718
+#pragma warning disable 1718
             Assert.IsFalse(a0 != a0);
             Assert.IsFalse(a0 != a1);
             Assert.IsTrue(a0 != b);
@@ -125,6 +122,5 @@ namespace Ipfs.Api
             node.DataStream.CopyTo(streamData);
             CollectionAssert.AreEqual(data, streamData.ToArray());
         }
-
     }
 }

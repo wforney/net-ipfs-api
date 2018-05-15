@@ -1,26 +1,12 @@
-﻿using Ipfs.Api;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Ipfs.Api
 {
-
     [TestClass]
     public class PinApiTest
     {
-        [TestMethod]
-        public void List()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var pins = ipfs.Pin.ListAsync().Result;
-            Assert.IsNotNull(pins);
-            Assert.IsTrue(pins.Count() > 0);
-        }
-
         [TestMethod]
         public async Task Add_Remove()
         {
@@ -39,5 +25,13 @@ namespace Ipfs.Api
             Assert.IsFalse(all.Any(pin => pin == id));
         }
 
+        [TestMethod]
+        public void List()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var pins = ipfs.Pin.ListAsync().Result;
+            Assert.IsNotNull(pins);
+            Assert.IsTrue(pins.Any());
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Ipfs.Api;
+using Ipfs.Api;
 using Ipfs.CoreApi;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -13,54 +13,6 @@ namespace Ipfs.Api
     [TestClass]
     public class FileSystemApiTest
     {
-
-        [TestMethod]
-        public void AddText()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var result = ipfs.FileSystem.AddTextAsync("hello world").Result;
-            Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)result.Id);
-        }
-
-        [TestMethod]
-        public void ReadText()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var node = ipfs.FileSystem.AddTextAsync("hello world").Result;
-            var text = ipfs.FileSystem.ReadAllTextAsync(node.Id).Result;
-            Assert.AreEqual("hello world", text);
-        }
-
-        [TestMethod]
-        public void AddFile()
-        {
-            var path = Path.GetTempFileName();
-            File.WriteAllText(path, "hello world");
-            try
-            {
-                var ipfs = TestFixture.Ipfs;
-                var result = ipfs.FileSystem.AddFileAsync(path).Result;
-                Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)result.Id);
-                Assert.AreEqual(0, result.Links.Count());
-            }
-            finally
-            {
-                File.Delete(path);
-            }
-        }
-
-        [TestMethod]
-        public void Read_With_Offset()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var indata = new MemoryStream(new byte[] { 10, 20, 30 });
-            var node = ipfs.FileSystem.AddAsync(indata).Result;
-            using (var outdata = ipfs.FileSystem.ReadFileAsync(node.Id, offset: 1).Result)
-            {
-                Assert.AreEqual(20, outdata.ReadByte());
-            }
-        }
-
         [TestMethod]
         public void Add_NoPin()
         {
@@ -70,56 +22,6 @@ namespace Ipfs.Api
             var node = ipfs.FileSystem.AddAsync(data, "", options).Result;
             var pins = ipfs.Pin.ListAsync().Result;
             Assert.IsFalse(pins.Any(pin => pin == node.Id));
-        }
-
-        [TestMethod]
-        //[Ignore("https://github.com/ipfs/go-ipfs/issues/4852")]
-        public async Task Add_Wrap()
-        {
-            var path = "hello.txt";
-            File.WriteAllText(path, "hello world");
-            try
-            {
-                var ipfs = TestFixture.Ipfs;
-                var options = new AddFileOptions
-                {
-                    Wrap = true
-                };
-                var node = await ipfs.FileSystem.AddFileAsync(path, options);
-                Assert.AreEqual("QmNxvA5bwvPGgMXbmtyhxA1cKFdvQXnsGnZLCGor3AzYxJ", (string)node.Id);
-                Assert.AreEqual(true, node.IsDirectory);
-                Assert.AreEqual(1, node.Links.Count());
-                Assert.AreEqual("hello.txt", node.Links.First().Name);
-                Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)node.Links.First().Id);
-            }
-            finally
-            {
-                File.Delete(path);
-            }
-        }
-
-        [TestMethod]
-        public async Task Add_SizeChunking()
-        {
-            var ipfs = TestFixture.Ipfs;
-            var options = new AddFileOptions
-            {
-                ChunkSize = 3
-            };
-            options.Pin = true;
-            var node = await ipfs.FileSystem.AddTextAsync("hello world", options);
-            Assert.AreEqual("QmVVZXWrYzATQdsKWM4knbuH5dgHFmrRqW3nJfDgdWrBjn", (string)node.Id);
-            Assert.AreEqual(false, node.IsDirectory);
-
-            var links = (await ipfs.Object.LinksAsync(node.Id)).ToArray();
-            Assert.AreEqual(4, links.Length);
-            Assert.AreEqual("QmevnC4UDUWzJYAQtUSQw4ekUdqDqwcKothjcobE7byeb6", (string)links[0].Id);
-            Assert.AreEqual("QmTdBogNFkzUTSnEBQkWzJfQoiWbckLrTFVDHFRKFf6dcN", (string)links[1].Id);
-            Assert.AreEqual("QmPdmF1n4di6UwsLgW96qtTXUsPkCLN4LycjEUdH9977d6", (string)links[2].Id);
-            Assert.AreEqual("QmXh5UucsqF8XXM8UYQK9fHXsthSEfi78kewr8ttpPaLRE", (string)links[3].Id);
-
-            var text = await ipfs.FileSystem.ReadAllTextAsync(node.Id);
-            Assert.AreEqual("hello world", text);
         }
 
         [TestMethod]
@@ -160,6 +62,56 @@ namespace Ipfs.Api
 
             var text = await ipfs.FileSystem.ReadAllTextAsync(node.Id);
             Assert.AreEqual("hello world", text);
+        }
+
+        [TestMethod]
+        public async Task Add_SizeChunking()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var options = new AddFileOptions
+            {
+                ChunkSize = 3,
+                Pin = true
+            };
+            var node = await ipfs.FileSystem.AddTextAsync("hello world", options);
+            Assert.AreEqual("QmVVZXWrYzATQdsKWM4knbuH5dgHFmrRqW3nJfDgdWrBjn", (string)node.Id);
+            Assert.AreEqual(false, node.IsDirectory);
+
+            var links = (await ipfs.Object.LinksAsync(node.Id)).ToArray();
+            Assert.AreEqual(4, links.Length);
+            Assert.AreEqual("QmevnC4UDUWzJYAQtUSQw4ekUdqDqwcKothjcobE7byeb6", (string)links[0].Id);
+            Assert.AreEqual("QmTdBogNFkzUTSnEBQkWzJfQoiWbckLrTFVDHFRKFf6dcN", (string)links[1].Id);
+            Assert.AreEqual("QmPdmF1n4di6UwsLgW96qtTXUsPkCLN4LycjEUdH9977d6", (string)links[2].Id);
+            Assert.AreEqual("QmXh5UucsqF8XXM8UYQK9fHXsthSEfi78kewr8ttpPaLRE", (string)links[3].Id);
+
+            var text = await ipfs.FileSystem.ReadAllTextAsync(node.Id);
+            Assert.AreEqual("hello world", text);
+        }
+
+        [TestMethod]
+        //[Ignore("https://github.com/ipfs/go-ipfs/issues/4852")]
+        public async Task Add_Wrap()
+        {
+            var path = "hello.txt";
+            File.WriteAllText(path, "hello world");
+            try
+            {
+                var ipfs = TestFixture.Ipfs;
+                var options = new AddFileOptions
+                {
+                    Wrap = true
+                };
+                var node = await ipfs.FileSystem.AddFileAsync(path, options);
+                Assert.AreEqual("QmNxvA5bwvPGgMXbmtyhxA1cKFdvQXnsGnZLCGor3AzYxJ", (string)node.Id);
+                Assert.AreEqual(true, node.IsDirectory);
+                Assert.AreEqual(1, node.Links.Count());
+                Assert.AreEqual("hello.txt", node.Links.First().Name);
+                Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)node.Links.First().Id);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
         }
 
         [TestMethod]
@@ -234,7 +186,54 @@ namespace Ipfs.Api
             }
         }
 
-        private void DeleteTemp(string temp)
+        [TestMethod]
+        public void AddFile()
+        {
+            var path = Path.GetTempFileName();
+            File.WriteAllText(path, "hello world");
+            try
+            {
+                var ipfs = TestFixture.Ipfs;
+                var result = ipfs.FileSystem.AddFileAsync(path).Result;
+                Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)result.Id);
+                Assert.AreEqual(0, result.Links.Count());
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [TestMethod]
+        public void AddText()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var result = ipfs.FileSystem.AddTextAsync("hello world").Result;
+            Assert.AreEqual("Qmf412jQZiuVUtdgnB36FXFX7xg5V6KEbSJ4dpQuhkLyfD", (string)result.Id);
+        }
+
+        [TestMethod]
+        public void Read_With_Offset()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var indata = new MemoryStream(new byte[] { 10, 20, 30 });
+            var node = ipfs.FileSystem.AddAsync(indata).Result;
+            using (var outdata = ipfs.FileSystem.ReadFileAsync(node.Id, offset: 1).Result)
+            {
+                Assert.AreEqual(20, outdata.ReadByte());
+            }
+        }
+
+        [TestMethod]
+        public void ReadText()
+        {
+            var ipfs = TestFixture.Ipfs;
+            var node = ipfs.FileSystem.AddTextAsync("hello world").Result;
+            var text = ipfs.FileSystem.ReadAllTextAsync(node.Id).Result;
+            Assert.AreEqual("hello world", text);
+        }
+
+        private static void DeleteTemp(string temp)
         {
             while (true)
             {
@@ -251,7 +250,7 @@ namespace Ipfs.Api
             }
         }
 
-        private string MakeTemp()
+        private static string MakeTemp()
         {
             var temp = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
             var x = Path.Combine(temp, "x");
